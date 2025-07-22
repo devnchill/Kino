@@ -1,6 +1,6 @@
-import pool from "./pool.js";
+const pool = require("./pool");
 
-export default class DataBase {
+class DataBase {
   static async initDb() {
     const SQL = `
       CREATE TABLE IF NOT EXISTS genre(
@@ -87,3 +87,5 @@ export default class DataBase {
     return rows;
   }
 }
+
+module.exports = DataBase;

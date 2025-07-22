@@ -1,6 +1,7 @@
-import express from "express";
-import path from "path";
-import indexRouter from "./router/indexRouter";
+const express = require("express");
+const path = require("path");
+const indexRouter = require("./router/indexRouter");
+const DataBase = require("./db/database");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -13,4 +14,8 @@ app.set("view engine", "ejs");
 
 app.use("/", indexRouter);
 
-app.listen(PORT, () => console.log("Server listening on port:" + PORT));
+async function startServer() {
+  await DataBase.initDb();
+  app.listen(PORT, () => console.log("Server listening on port:" + PORT));
+}
+startServer();
