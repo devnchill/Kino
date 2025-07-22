@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Genres & Movies</title>
+    <style>
+      .genre { margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #ccc; }
+    </style>
+  </head>
+  <body>
+    <h1>Genres (<%= totalNoOfGenre %>)</h1>
+    <% genres.slice(0, 3).forEach((genre) => { %>
+      <div class="genre">
+        <p><strong><%= genre.gname %></strong></p>
+        <a href="/delete/<%= genre.gid %>">
+          <button>Delete</button>
+        </a>
+      </div>
+    <% }); %>
+
+    <% if (genres.length > 3) { %>
+      <a href="/genres/all"><button>Show all genres...</button></a>
+    <% } %>
+
+    <h2>Movies</h2>
+    <ul>
+      <% movies.forEach(movie => { %>
+        <li><%= movie.mname %> </li>
+      <% }); %>
+    </ul>
+  </body>
+</html>
+
