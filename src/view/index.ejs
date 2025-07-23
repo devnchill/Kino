@@ -7,7 +7,21 @@
     </style>
   </head>
   <body>
-    <h1>Genres (<%= totalNoOfGenres %>)</h1>
+    <form action="/genres/add/" method="POST">
+      <input type="text" name="genreVal" placeholder="enter the genre">
+      <button type="submit">Add Genre</button>
+    </form>
+    <form action="/movies/add/" method="POST">
+      <input type="text" name="movieVal" placeholder="enter the new movie">
+      <select name="gid" required>
+        <% genres.forEach((genre) => { %>
+          <option value="<%= genre.gid %>"><%= genre.gname %></option>
+        <% }); %>
+      </select>
+      <button type="submit">Add movie</button>
+    </form>
+    <h1><a href='/genres/browse'><button>Browse By Genre</button></a></h1>
+    <h2>Genres (<%= totalNoOfGenres %>)</h2>
     <% genres.slice(0, 3).forEach((genre) => { %>
         <p><strong><%= genre.gname %></strong></p>
     <% }); %>

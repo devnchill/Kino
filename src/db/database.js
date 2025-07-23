@@ -31,29 +31,23 @@ class DataBase {
     ON CONFLICT (gname) DO NOTHING;
   `;
     await pool.query(insertGenresSQL);
-
     const genreNames = ["Horror", "Thriller", "Comedy", "Sci-fi", "Drama"];
     const genreIds = {};
-
     for (const gname of genreNames) {
       const { rows } = await pool.query(
         `SELECT gid FROM genre WHERE gname = $1`,
         [gname],
       );
-
       if (!rows.length) {
         throw new Error(`Genre "${gname}" not found while seeding.`);
       }
-
       genreIds[gname] = rows[0].gid;
     }
-
     const movies = [
       { mname: "The Conjuring", genre: "Horror" },
       { mname: "Inception", genre: "Sci-fi" },
       { mname: "The Hangover", genre: "Comedy" },
     ];
-
     for (const { mname, genre } of movies) {
       await pool.query(
         `INSERT INTO movies (mname, gid) 
@@ -61,7 +55,6 @@ class DataBase {
         [mname, genreIds[genre]],
       );
     }
-
     console.log("Database seeded successfully 🚀");
   }
 
@@ -78,7 +71,14 @@ class DataBase {
     return (await pool.query(SQL)).rows;
   }
 
-  static async getMovieOfAGenre(gid) {
+  static async getGenreByGid(gid) {
+    const { rows } = await pool.query(`select gname from genre WHERE gid=$1`, [
+      gid,
+    ]);
+    return rows[0];
+  }
+
+  static async getMoviesByGenre(gid) {
     const SQL = `SELECT mid,mname from movies WHERE gid = $1;`;
     return (await pool.query(SQL, [gid])).rows;
   }

@@ -1,0 +1,8 @@
+<h1>Browse Genres</h1>
+<ul>
+  <% genres.forEach(genre => { %>
+    <li>
+      <a href="/genres/<%= genre.gid %>/movies"><%= genre.gname %></a>
+    </li>
+  <% }) %>
+</ul>

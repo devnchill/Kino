@@ -1,0 +1,7 @@
+<h1>Movies in <%= genre.gname %></h1>
+<ul>
+  <% movies.forEach(movie => { %>
+    <li><%= movie.mname %></li>
+  <% }) %>
+</ul>
+<a href="/genres/browse"><button>Back to Genres</button></a>

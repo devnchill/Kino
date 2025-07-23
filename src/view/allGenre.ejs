@@ -10,14 +10,15 @@
 
     <script>
       async function deleteGenre(gid) {
+         console.log("Attempting delete for gid:", gid);
         const res = await fetch(`/genres/delete/${gid}`, {
           method: 'DELETE'
         });
-
+        console.log(res);
         if (res.ok) {
           window.location.href = "/genres/all";
         } else {
-          alert("Failed to delete movie.");
+          alert("Failed to delete genre.");
         }
       }
     </script>
