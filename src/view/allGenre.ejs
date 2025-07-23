@@ -1,0 +1,26 @@
+<html>
+  <body>
+    <% genreData.genres.forEach((genre)=>{ %>
+    <div>
+      <p><%= genre.gname %> </p>
+      <a><button href='/genres/edit/<%= genre.gid %>'>Edit</button></a>
+        <button onclick="deleteGenre('<%= genre.gid %>')">Delete</button>
+    </div>
+    <% }) %>
+
+    <script>
+      async function deleteGenre(gid) {
+        const res = await fetch(`/genres/delete/${gid}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          window.location.href = "/genres/all";
+        } else {
+          alert("Failed to delete movie.");
+        }
+      }
+    </script>
+  </body>
+</html>
+

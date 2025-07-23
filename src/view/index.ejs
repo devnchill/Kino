@@ -7,14 +7,9 @@
     </style>
   </head>
   <body>
-    <h1>Genres (<%= totalNoOfGenre %>)</h1>
+    <h1>Genres (<%= totalNoOfGenres %>)</h1>
     <% genres.slice(0, 3).forEach((genre) => { %>
-      <div class="genre">
         <p><strong><%= genre.gname %></strong></p>
-        <a href="/delete/<%= genre.gid %>">
-          <button>Delete</button>
-        </a>
-      </div>
     <% }); %>
 
     <% if (genres.length > 3) { %>
@@ -22,11 +17,13 @@
     <% } %>
 
     <h2>Movies</h2>
-    <ul>
-      <% movies.forEach(movie => { %>
-        <li><%= movie.mname %> </li>
+      <% movies.slice(0,3).forEach(movie => { %>
+        <p><%= movie.mname %> </p>
       <% }); %>
-    </ul>
+          <% if (movies.length > 3) { %>
+      <a href="/movies/all"><button>Show all movies...</button></a>
+      <% } %>
+
   </body>
 </html>
 

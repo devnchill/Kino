@@ -57,8 +57,7 @@ class DataBase {
     for (const { mname, genre } of movies) {
       await pool.query(
         `INSERT INTO movies (mname, gid) 
-       VALUES ($1, $2)
-       ON CONFLICT (mname) DO NOTHING;`,
+       VALUES ($1, $2)`,
         [mname, genreIds[genre]],
       );
     }
@@ -66,10 +65,10 @@ class DataBase {
     console.log("Database seeded successfully 🚀");
   }
 
-  static async getAllGenresAndCount() {
+  static async getAllGenres() {
     const SQL = `SELECT gid, gname FROM genre;`;
     const { rows } = await pool.query(SQL);
-    return rows;
+    return { genres: rows, totalNoOfGenres: rows.length };
   }
 
   static async getAllMovies() {
@@ -84,37 +83,24 @@ class DataBase {
     return (await pool.query(SQL, [gid])).rows;
   }
 
-  static async getMoviesWithGenre(gid) {
-    const SQL = `SELECT mid,mname,gname from movies INNER JOIN genre ON movies.gid = genre.gid WHERE genre.gid=$1`;
-    return (await pool.query(SQL, [gid])).rows;
-  }
-
   static async addMovie(mname, gid) {
     const SQL = `INSERT INTO movies(mname,gid) VALUES($1,$2)`;
     await pool.query(SQL, [mname, gid]);
   }
 
   static async addGenre(gname) {
-    const SQL = `INSERT INTO genre(gname,noofmovies) VALUES($1,0) RETURNING gid;`;
-    const { rows } = await pool.query(SQL, [gname]);
-    return rows.gid;
+    const SQL = `INSERT INTO genre(gname) VALUES($1);`;
+    await pool.query(SQL, [gname]);
   }
 
   static async deleteMovie(mid) {
-    const SQL = `DELETE from movies WHERE mid = $1 RETURNING mid;`;
+    const SQL = `DELETE from movies WHERE mid = $1 ;`;
     await pool.query(SQL, [mid]);
   }
 
   static async deleteGenre(gid) {
     const SQL = `DELETE FROM genre WHERE gid = $1 RETURNING gid;`;
-    const { rows } = await pool.query(SQL, [gid]);
-
-    if (!rows.length) {
-      throw new Error(`Genre with gid ${gid} does not exist.`);
-    }
-
-    console.log(`Genre with gid ${gid} and its associated movies deleted.`);
-    return rows[0];
+    await pool.query(SQL, [gid]);
   }
 }
 

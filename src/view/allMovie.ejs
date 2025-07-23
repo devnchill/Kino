@@ -1,0 +1,28 @@
+<html>
+  <body>
+    <% movieData.map((movie) => { %>
+      <div>
+        <p><%= movie.mname %></p>
+        <a href="/movies/edit/<%= movie.mid %>">
+          <button>Edit</button>
+        </a>
+        <button onclick="deleteMovie('<%= movie.mid %>')">Delete</button>
+      </div>
+    <% }) %>
+
+    <script>
+      async function deleteMovie(mid) {
+        const res = await fetch(`/movies/delete/${mid}`, {
+          method: 'DELETE'
+        });
+
+        if (res.ok) {
+          window.location.href = "/movies/all";
+        } else {
+          alert("Failed to delete movie.");
+        }
+      }
+    </script>
+  </body>
+</html>
+

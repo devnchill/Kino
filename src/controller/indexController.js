@@ -2,9 +2,9 @@ const DataBase = require("../db/database.js");
 
 const getIndex = async (req, res) => {
   try {
-    const { genres, totalNoOfGenre } = await DataBase.getAllGenresAndCount();
+    const { genres, totalNoOfGenres } = await DataBase.getAllGenres();
     const movies = await DataBase.getAllMovies();
-    res.render("index", { genres, totalNoOfGenre, movies });
+    res.render("index", { genres, totalNoOfGenres, movies });
   } catch (err) {
     console.error("Error fetching data", err);
     res.status(400).send(err);
