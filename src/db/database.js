@@ -5,14 +5,13 @@ class DataBase {
     const SQL = `
       CREATE TABLE IF NOT EXISTS genre(
         gid BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        gname VARCHAR(255) UNIQUE NOT NULL,
-        noofmovies integer
+        gname VARCHAR(255) UNIQUE NOT NULL
       );
 
       CREATE TABLE IF NOT EXISTS movies(
         mid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         mname VARCHAR(255) NOT NULL,
-        gid BIGINT REFERENCES genre(gid)
+        gid BIGINT REFERENCES genre(gid) ON DELETE CASCADE
       );
 
     `;
@@ -20,17 +19,57 @@ class DataBase {
     await pool.query(SQL);
   }
 
+  static async seedDb() {
+    const insertGenresSQL = `
+    INSERT INTO genre (gname) 
+    VALUES 
+      ('Horror'), 
+      ('Thriller'), 
+      ('Comedy'), 
+      ('Sci-fi'), 
+      ('Drama')
+    ON CONFLICT (gname) DO NOTHING;
+  `;
+    await pool.query(insertGenresSQL);
+
+    const genreNames = ["Horror", "Thriller", "Comedy", "Sci-fi", "Drama"];
+    const genreIds = {};
+
+    for (const gname of genreNames) {
+      const { rows } = await pool.query(
+        `SELECT gid FROM genre WHERE gname = $1`,
+        [gname],
+      );
+
+      if (!rows.length) {
+        throw new Error(`Genre "${gname}" not found while seeding.`);
+      }
+
+      genreIds[gname] = rows[0].gid;
+    }
+
+    const movies = [
+      { mname: "The Conjuring", genre: "Horror" },
+      { mname: "Inception", genre: "Sci-fi" },
+      { mname: "The Hangover", genre: "Comedy" },
+    ];
+
+    for (const { mname, genre } of movies) {
+      await pool.query(
+        `INSERT INTO movies (mname, gid) 
+       VALUES ($1, $2)
+       ON CONFLICT (mname) DO NOTHING;`,
+        [mname, genreIds[genre]],
+      );
+    }
+
+    console.log("Database seeded successfully 🚀");
+  }
+
   static async getAllGenresAndCount() {
-    const genreQuery = `SELECT gid, gname FROM genre;`;
-    const countQuery = `SELECT COUNT(*)::int AS total FROM genre;`;
-    const [genresRes, countRes] = await Promise.all([
-      pool.query(genreQuery),
-      pool.query(countQuery),
-    ]);
-    return {
-      genres: genresRes.rows,
-      totalNoOfGenre: countRes.rows[0].total,
-    };
+    const SQL = `SELECT gid, gname FROM genre;`;
+    const { rows } = await pool.query(SQL);
+    return rows;
   }
 
   static async getAllMovies() {
@@ -66,25 +105,16 @@ class DataBase {
     await pool.query(SQL, [mid]);
   }
 
-  async checkIfGenreIsEmpty(gid) {
-    const SQL = `SELECT COUNT(gid) from movies WHERE gid=$1;`;
-    const { rows } = await pool.query(SQL, [gid]);
-    if (rows !== 0) {
-      return false;
-    } else return true;
-  }
-
   static async deleteGenre(gid) {
-    if (!(await this.checkIfGenreIsEmpty(gid))) {
-      const SQL = `SELECT COUNT(*),gname from movies INNER JOIN genre ON movies.gid=genre.gid WHERE movies.gid=$1`;
-      const { rows } = await pool.query(SQL, [gid]);
-      const { count, gname } = rows[0];
-      console.log(`Deleting ${count} Movies present in ${gname}`);
-      await pool.query(`DELETE from movies WHERE gid=$1`, [gid]);
-    }
-    const SQL = `DELETE from genre WHERE gid = $1 RETURNING gid;`;
+    const SQL = `DELETE FROM genre WHERE gid = $1 RETURNING gid;`;
     const { rows } = await pool.query(SQL, [gid]);
-    return rows;
+
+    if (!rows.length) {
+      throw new Error(`Genre with gid ${gid} does not exist.`);
+    }
+
+    console.log(`Genre with gid ${gid} and its associated movies deleted.`);
+    return rows[0];
   }
 }
 
